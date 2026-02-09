@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>São Luiz Express Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              sle: {
+                // Identity - Primary (Blues)
+                primary: '#2E31B4',     // Main Blue
+                primaryDark: '#1A1B62', // Deep Blue Text/Elements
+                primaryLight: '#6E71DA', // Lighter Blue for accents
+                neonBlue: '#4649CF',    // High saturation blue
+
+                // Identity - Secondary (Reds)
+                secondary: '#EC1B23',   // Main Red
+                secondaryDark: '#950C12', // Dark Red
+                neonRed: '#F04A50',     // High saturation red
+                
+                // Backgrounds & Surfaces
+                bgLight: '#F2F2F8',     // Specific Light Background from palette
+                cardLight: '#FFFFFF',   // White
+                
+                // Dark Mode Specifics (Updated for Deep Royal/Navy Elegance)
+                dark: '#050518',        // Deep Royal Navy Background
+                darkCard: '#101129',    // Slightly lighter Royal Navy for Cards
+                
+                // Text Colors
+                textMain: '#1A1B62',    // Dark Blue for main text (replaces slate-800)
+                textMuted: '#606084',   // Blue-ish Gray for subtitles
+                
+                // Chart/Pastel Colors (Optimized for Dark Mode)
+                pastelBlue: '#818CF8',  // Soft Indigo/Blue (Tailwind Indigo-400)
+                pastelRed: '#F87171',   // Soft Red (Tailwind Red-400)
+                pastelPurple: '#A78BFA' // Soft Purple
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            boxShadow: {
+              'soft': '0 4px 20px rgba(46, 49, 180, 0.05)', // Tinted with primary blue
+              'neon': '0 0 15px rgba(70, 73, 207, 0.4)'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      body { font-family: 'Inter', sans-serif; }
+      
+      /* Custom Scrollbar */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #B2B2D6;
+        border-radius: 3px;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #313392;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+</head>
+  <body class="bg-sle-bgLight dark:bg-sle-dark text-sle-textMain dark:text-slate-100 transition-colors duration-300">
+    <div id="root"></div>
+  </body>
+</html>
