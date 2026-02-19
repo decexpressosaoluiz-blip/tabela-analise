@@ -1,46 +1,49 @@
 
 // Helper to parse currency robustly handling BR and US formats
-export const parseCurrency = (value: string): number => {
-  if (!value) return 0;
-  // Remove R$ and spaces
+export const parseCurrency = (value: string | number): number => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  
+  // Remove R$, spaces and handle BR format (dots as thousand separator)
   let clean = value.toString().replace(/[R$\s]/g, '').trim();
-
   if (!clean) return 0;
 
-  const hasComma = clean.includes(',');
-  const hasDot = clean.includes('.');
-
-  if (hasComma && hasDot) {
+  // Se tiver vírgula e ponto, remove o ponto (milhar) e troca vírgula por ponto (decimal)
+  if (clean.includes(',') && clean.includes('.')) {
     const lastComma = clean.lastIndexOf(',');
     const lastDot = clean.lastIndexOf('.');
     if (lastComma > lastDot) {
-      // 1.234,56 -> 1234.56
       clean = clean.replace(/\./g, '').replace(',', '.');
     } else {
-      // 1,234.56 -> 1234.56
       clean = clean.replace(/,/g, '');
     }
-  } else if (hasComma) {
-    // 123,45 -> 123.45 (Assume comma is decimal in BR context)
+  } else if (clean.includes(',')) {
+    // Apenas vírgula: trata como decimal BR
     clean = clean.replace(',', '.');
-  } 
-  // If only dot: "123.45". 
-  // In BR logistics data, "1.200" is ambiguous (1200 or 1.2). 
-  // However, usually API/CSV exports don't put thousands separators on integers unless formatted as text.
-  // We'll treat it as standard float.
+  }
 
   return parseFloat(clean) || 0;
 };
 
 export const parseDate = (dateStr: string): Date | null => {
   if (!dateStr) return null;
-  const parts = dateStr.split('/');
-  if (parts.length !== 3) return null;
-  return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+  
+  // Suporta formatos DD/MM/YYYY e ISO
+  if (dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0]);
+      const month = parseInt(parts[1]) - 1;
+      const year = parts[2].length === 2 ? 2000 + parseInt(parts[2]) : parseInt(parts[2]);
+      return new Date(year, month, day);
+    }
+  }
+  
+  const isoDate = new Date(dateStr);
+  return isNaN(isoDate.getTime()) ? null : isoDate;
 };
 
-export const parseNumber = (numStr: string): number => {
-  if (!numStr) return 0;
+export const parseNumber = (numStr: string | number): number => {
   return parseCurrency(numStr);
 };
 
@@ -60,7 +63,6 @@ export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat('pt-BR').format(date);
 };
 
-// FULL CSV PARSER handling newlines inside quotes
 export const parseCSVComplete = (text: string): string[][] => {
   const rows: string[][] = [];
   let currentRow: string[] = [];
@@ -73,24 +75,16 @@ export const parseCSVComplete = (text: string): string[][] => {
 
     if (char === '"') {
       if (inQuotes && nextChar === '"') {
-        // Escaped quote
         currentVal += '"';
-        i++; // Skip next quote
+        i++;
       } else {
-        // Toggle state
         inQuotes = !inQuotes;
       }
     } else if (char === ',' && !inQuotes) {
-      // Cell separator
       currentRow.push(currentVal.trim());
       currentVal = '';
     } else if ((char === '\r' || char === '\n') && !inQuotes) {
-      // Row separator
-      // Handle \r\n
-      if (char === '\r' && nextChar === '\n') {
-        i++;
-      }
-      // Only push if row has content
+      if (char === '\r' && nextChar === '\n') i++;
       if (currentRow.length > 0 || currentVal.trim()) {
         currentRow.push(currentVal.trim());
         rows.push(currentRow);
@@ -102,7 +96,6 @@ export const parseCSVComplete = (text: string): string[][] => {
     }
   }
   
-  // Push last row
   if (currentRow.length > 0 || currentVal.trim()) {
     currentRow.push(currentVal.trim());
     rows.push(currentRow);
